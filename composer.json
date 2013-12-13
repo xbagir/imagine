@@ -1,0 +1,23 @@
+{
+    "name": "xbagir/imagine",
+    "description": "",
+    "authors": [
+        {
+            "name": "xbagir",
+            "email": "xbagir@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "imagine/imagine": "0.6.*@dev"
+    },
+    "autoload": {       
+        "classmap": [
+            "src/controllers"
+        ],        
+        "psr-0": {
+            "Xbagir\\Imagine": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
