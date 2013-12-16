@@ -33,11 +33,5 @@ class PresetController extends \Controller
                     
         return Imagine::getPreset()->makeResponse($image, $preset, $token, $ext);
     }
-
-    public function makeTestImage($id, $ext)
-    {
-        print_r($id);
-        die;
-    }    
     
 }
