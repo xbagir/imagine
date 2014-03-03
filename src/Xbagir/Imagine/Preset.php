@@ -47,10 +47,15 @@ class Preset
 
     protected function makeContent($file, $config)
     {        
-        $box   = new Box($config['size'][0], $config['size'][1]);
-        $image = $this->imagine->make()->open($file)->thumbnail($box, ImageInterface::THUMBNAIL_OUTBOUND);
+        $box        = new Box($config['size'][0], $config['size'][1]);
+        $background = $this->imagine->make()->create($box, (new RGB())->color('#ffffff', 100));
         
-        return  $image->get($config['ext'], array('quality' => $config['quality']));
+        $image = $this->imagine->make()->open($file)->thumbnail($box, ImageInterface::THUMBNAIL_OUTBOUND);
+
+        $x = abs(round(($box->getWidth() - $image->getSize()->getWidth()) / 2));
+        $y = abs(round(($box->getHeight() - $image->getSize()->getHeight()) / 2));
+                      
+        return $background->paste($image, new Point($x, $y))->get($config['ext'], array('quality' => $config['quality']));
     }
     
     /*protected function makeContent($file, $config)

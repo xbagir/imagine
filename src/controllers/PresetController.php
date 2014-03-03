@@ -20,13 +20,14 @@ class PresetController extends \Controller
         {
             return Response::make('Image not found', 404);
         }    
-              
+            
+        
         return Imagine::getPreset()->makeResponse($image, $preset, $token, $ext);
     }
 
     public function makeUploadedImage($preset, $token, $id, $ext)
-    {
-        if ( ! $image = $this->imageService->getUploadedImage($id))
+    {       
+        if ( ! $image = $this->imageService->getUploadedById($id))
         {
             return Response::make('Image not found', 404);    
         }    
