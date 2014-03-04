@@ -4,6 +4,7 @@ use Imagine\Image\Box;
 use Imagine\Image\Palette\RGB;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\Point;
+use Whoops\Example\Exception;
 
 class Preset
 {   
@@ -16,42 +17,45 @@ class Preset
         $this->config  = $config;
     }
 
-    public function makeUrl($id, $preset)
+    public function makeUrl($id = 0, $preset)
     {
-        $config = $this->presetConfig($preset);
-        $token  = $this->makeToken($id, $preset, $config['ext']);
+        $config = $this->getPresetConfig($preset);
         
         return route($config['route'], array(
             'preset' => $this->presetEncode($preset), 
-            'token'  => $token, 
+            'token'  => $this->makeToken($preset, $id, $config['ext']), 
             'id'     => $id,
             'ext'    => $config['ext']
         ));
     }
    
-    public function makeResponse($image, $preset, $token, $ext)
+    public function validUrlSegments($token, $preset, $id, $ext)
     {
         $preset = $this->presetDecode($preset);
-        $config = $this->presetConfig($preset);
-                         
-        if ( $token !== $this->makeToken($image->id, $preset, $ext) )
+                
+        if ( $token !== $this->makeToken($preset, $id, $ext) )
         {
-            throw new \InvalidArgumentException("Invalid token: $token");    
+            return false;
         }
         
-        return \Response::make($this->makeContent($image->realPath, $config), 200, array(
-            'Content-Type' => 'image/'.$config['ext'],
-            'Expires'      => \Carbon\Carbon::now()->addDay()->toRFC1123String()
-        ));      
+        return true;
     }
 
+    public function getContent($realPath, $preset)
+    { 
+        $config   = $this->getPresetConfig($this->presetDecode($preset));
+        $realPath = is_file($realPath) ? $realPath : $config['dummy'];
+                        
+        return $this->makeContent($realPath, $config);
+    }
+    
     protected function makeContent($file, $config)
     {        
         $box        = new Box($config['size'][0], $config['size'][1]);
         $background = $this->imagine->make()->create($box, (new RGB())->color('#ffffff', 100));
         
         $image = $this->imagine->make()->open($file)->thumbnail($box, ImageInterface::THUMBNAIL_OUTBOUND);
-
+        
         $x = abs(round(($box->getWidth() - $image->getSize()->getWidth()) / 2));
         $y = abs(round(($box->getHeight() - $image->getSize()->getHeight()) / 2));
                       
@@ -73,7 +77,7 @@ class Preset
         return  $content;
     }*/
         
-    protected function presetConfig($preset)
+    protected function getPresetConfig($preset)
     {
         if ( ! $config = array_get($this->config, $preset) )
         {
